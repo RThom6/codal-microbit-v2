@@ -5,7 +5,8 @@ using namespace codal;
 
 SampleSource::SampleSource(Mixer2 &mixer) : MemorySource(), mixer(mixer)
 {
-    this->mixer.addChannel(*this);
+    this->channel = this->mixer.addChannel(*this);
+    connect(*channel);
 }
 
 SampleSource::~SampleSource()
@@ -13,14 +14,14 @@ SampleSource::~SampleSource()
     mixer.~Mixer2();
 }
 
+// Set the sample range of the channel associated with this SampleSource
 int SampleSource::setSampleRate(float sampleRate)
 {
     this->sampleRate = sampleRate;
-    this->mixer.setSampleRate(sampleRate);
+    this->channel->setSampleRate(sampleRate);
 }
 
-int SampleSource::setSampleRange(uint8_t sampleRange)
+void SampleSource::setVolume(float volume)
 {
-    this->sampleRate = sampleRange;
-    this->mixer.setSampleRange(sampleRange);
+    this->channel->setVolume(volume);
 }

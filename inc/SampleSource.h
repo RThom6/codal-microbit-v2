@@ -12,14 +12,15 @@ namespace codal
     {
         private:
         Mixer2 &mixer;
-        float sampleRange;
         float sampleRate;
+        float sampleRange;
+        MixerChannel *channel;
 
         public:
             /**
              * Constructor.
              * Creates an empty sample source with a Mixer.
-             * 
+             * = CONFIG_MIXER_DEFAULT_SAMPLERATE
              */
             SampleSource(Mixer2 &mixer);
 
@@ -31,7 +32,7 @@ namespace codal
 
             int setSampleRate(float sampleRate);
 
-            int setSampleRange(uint8_t sampleRange);
+            void setVolume(float volume);
     };
 }
 #endif
