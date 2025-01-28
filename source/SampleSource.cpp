@@ -3,15 +3,17 @@
 
 using namespace codal;
 
-SampleSource::SampleSource(Mixer2 &mixer) : MemorySource(), mixer(mixer)
+SampleSource::SampleSource(Mixer2 &mixer, float sampleRate, float sampleRange) : MemorySource(), mixer(mixer)
 {
-    this->channel = this->mixer.addChannel(*this);
+    this->sampleRate = sampleRate;
+    this-> sampleRange = sampleRange;
+    this->channel = this->mixer.addChannel(*this, sampleRate, sampleRange);
     connect(*channel);
 }
 
 SampleSource::~SampleSource()
 {
-    mixer.~Mixer2();
+    this->mixer.removeChannel(this->channel);
 }
 
 // Set the sample range of the channel associated with this SampleSource

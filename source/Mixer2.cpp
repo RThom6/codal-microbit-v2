@@ -30,6 +30,7 @@ DEALINGS IN THE SOFTWARE.
 
 using namespace codal;
 
+int count = 0;
 
 /**
  * Constructor.
@@ -125,6 +126,8 @@ ManagedBuffer Mixer2::pull()
     // If we have no channels, just return an empty buffer.
     if (!channels)
     {
+        // DMESG("Pulling here");
+        // DMESG("");
         downStream->pullRequest();
         return ManagedBuffer(CONFIG_MIXER_BUFFER_SIZE);
     }
@@ -135,7 +138,7 @@ ManagedBuffer Mixer2::pull()
 
     MixerChannel *next;
     bool silence = true;
-
+    // DMESG("Pulling there");
     for (MixerChannel *ch = channels; ch; ch = next) {
         next = ch->next; // save next in case the current channel gets deleted
 
@@ -241,11 +244,12 @@ ManagedBuffer Mixer2::pull()
     float lo = (outputFormat == DATASTREAM_FORMAT_16BIT_UNSIGNED || outputFormat == DATASTREAM_FORMAT_8BIT_UNSIGNED) ? 0 : -outputRange/2;
     float hi = (outputFormat == DATASTREAM_FORMAT_16BIT_UNSIGNED || outputFormat == DATASTREAM_FORMAT_8BIT_UNSIGNED) ? outputRange : outputRange/2;
 
+    // DMESG("LO AND HI: %d %d ", (int)lo, (int)hi);
+
     while(len--)
     {
         float sample = *r * scale;
         sample += offset;
-        
         // Clamp output range. Would be nice to use apply some compression here, 
         // but we don't really want ot use more CPU than we already do.
         if (sample < lo)
@@ -264,6 +268,21 @@ ManagedBuffer Mixer2::pull()
         r++;
     }
 
+    uint8_t *bytes = output.getBytes();
+    uint16_t max = 0;
+    uint16_t min = 0xFFFF;
+    for(int i = 0; i<output.length(); i+=2){
+        uint16_t num = (bytes[i+1] << 8) | bytes[i];
+        if (num > max) {
+            max = num;
+        } else if (num < min)
+        {
+            min = num;
+        }
+    }
+    DMESGN("%04x-%04x ", min, max);
+    if(count++%13 == 0)
+        DMESG("");
     // Return the buffer and we're done.
     downStream->pullRequest();
     return output;
@@ -272,6 +291,7 @@ ManagedBuffer Mixer2::pull()
 int MixerChannel::pullRequest()
 {
     pullRequests++;
+    // DMESG("pull request received");
     return DEVICE_OK;
 }
 

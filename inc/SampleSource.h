@@ -22,7 +22,7 @@ namespace codal
              * Creates an empty sample source with a Mixer.
              * = CONFIG_MIXER_DEFAULT_SAMPLERATE
              */
-            SampleSource(Mixer2 &mixer);
+            SampleSource(Mixer2 &mixer, float sampleRate, float sampleRange);
 
             /**
              * Destructor
